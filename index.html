@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#190B16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EntreNós">
+<meta name="description" content="Um espaço só de vocês dois.">
+<title>EntreNós</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icones/icone-180.png">
+<link rel="icon" href="icones/icone-180.png">
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<!-- ============ ABERTURA ============ -->
+<section class="tela ativa" id="tela-abertura">
+  <div class="centro">
+    <div class="marca">
+      <div class="marca-simbolo" aria-hidden="true">
+        <svg viewBox="0 0 100 100" width="84" height="84">
+          <circle cx="38" cy="50" r="26" fill="none" stroke="var(--dourado)" stroke-width="2.5" opacity=".85"/>
+          <circle cx="62" cy="50" r="26" fill="none" stroke="var(--dourado)" stroke-width="2.5" opacity=".85"/>
+        </svg>
+      </div>
+      <h1 class="marca-nome">EntreNós</h1>
+      <p class="marca-frase">Um espaço só de vocês dois</p>
+    </div>
+    <div class="carregando" id="carregando"><span></span><span></span><span></span></div>
+  </div>
+</section>
+
+
+<!-- ============ ENTRADA: LOGIN / CADASTRO ============ -->
+<section class="tela" id="tela-entrada">
+  <div class="conteudo">
+    <header class="cabecalho">
+      <h1 class="titulo">EntreNós</h1>
+      <p class="subtitulo" id="entrada-subtitulo">Que bom ter você aqui</p>
+    </header>
+
+    <div class="alternador" role="tablist">
+      <button class="alternador-item ativo" id="aba-entrar" type="button">Entrar</button>
+      <button class="alternador-item" id="aba-criar" type="button">Criar conta</button>
+    </div>
+
+    <form class="formulario" id="form-entrada" novalidate>
+      <div class="campo so-cadastro">
+        <label for="campo-apelido">Como seu amor te chama</label>
+        <input type="text" id="campo-apelido" autocomplete="nickname" maxlength="24" placeholder="Seu apelido">
+      </div>
+
+      <div class="campo">
+        <label for="campo-email">E-mail</label>
+        <input type="email" id="campo-email" autocomplete="email" required placeholder="voce@email.com">
+      </div>
+
+      <div class="campo">
+        <label for="campo-senha">Senha</label>
+        <div class="campo-senha">
+          <input type="password" id="campo-senha" autocomplete="current-password" required minlength="8" placeholder="Mínimo de 8 caracteres">
+          <button type="button" class="ver-senha" id="ver-senha" aria-label="Mostrar senha">👁</button>
+        </div>
+        <p class="dica so-cadastro">Use 8 caracteres ou mais.</p>
+      </div>
+
+      <label class="caixa-marcar so-cadastro" for="campo-idade">
+        <input type="checkbox" id="campo-idade">
+        <span>Confirmo que tenho 18 anos ou mais</span>
+      </label>
+
+      <p class="aviso" id="aviso-entrada" role="alert"></p>
+
+      <button type="submit" class="botao-principal" id="botao-entrada">Entrar</button>
+
+      <button type="button" class="botao-texto" id="botao-esqueci">Esqueci minha senha</button>
+    </form>
+  </div>
+</section>
+
+
+<!-- ============ CONFIRME SEU E-MAIL ============ -->
+<section class="tela" id="tela-confirmar">
+  <div class="conteudo centro-vertical">
+    <div class="icone-grande">✉️</div>
+    <h2 class="titulo">Confirme seu e-mail</h2>
+    <p class="texto">Enviamos um link para <strong id="email-enviado"></strong>. Abra o e-mail e toque no link para ativar sua conta.</p>
+    <p class="texto fraco">Não chegou? Veja a caixa de spam.</p>
+    <button type="button" class="botao-principal" id="botao-voltar-entrada">Já confirmei, entrar</button>
+  </div>
+</section>
+
+
+<!-- ============ VÍNCULO DO CASAL ============ -->
+<section class="tela" id="tela-vinculo">
+  <div class="conteudo">
+    <header class="cabecalho">
+      <h2 class="titulo">Falta só o seu amor</h2>
+      <p class="subtitulo">O EntreNós é feito para duas pessoas</p>
+    </header>
+
+    <div class="alternador" role="tablist">
+      <button class="alternador-item ativo" id="aba-convidar" type="button">Convidar</button>
+      <button class="alternador-item" id="aba-codigo" type="button">Tenho um código</button>
+    </div>
+
+    <!-- Convidar -->
+    <div class="painel ativo" id="painel-convidar">
+      <p class="texto">Gere um código e mostre para seu amor. Ele vale por 24 horas e só pode ser usado uma vez.</p>
+
+      <div class="codigo-caixa escondido" id="caixa-codigo">
+        <span class="codigo-rotulo">Seu código</span>
+        <strong class="codigo-valor" id="codigo-valor">----</strong>
+        <span class="codigo-prazo" id="codigo-prazo"></span>
+      </div>
+
+      <button type="button" class="botao-principal" id="botao-gerar">Gerar código</button>
+      <button type="button" class="botao-secundario escondido" id="botao-copiar">Copiar código</button>
+
+      <div class="esperando escondido" id="esperando">
+        <div class="pulso"></div>
+        <p class="texto fraco">Esperando seu amor entrar com o código…</p>
+      </div>
+    </div>
+
+    <!-- Tenho um código -->
+    <div class="painel" id="painel-codigo">
+      <p class="texto">Digite o código que seu amor te passou.</p>
+      <div class="campo">
+        <label for="campo-codigo">Código do convite</label>
+        <input type="text" id="campo-codigo" class="entrada-codigo" maxlength="9" placeholder="ABCD-1234" autocapitalize="characters" autocomplete="off" spellcheck="false">
+      </div>
+      <button type="button" class="botao-principal" id="botao-vincular">Vincular</button>
+    </div>
+
+    <p class="aviso" id="aviso-vinculo" role="alert"></p>
+    <button type="button" class="botao-texto" id="botao-sair-vinculo">Sair da conta</button>
+  </div>
+</section>
+
+
+<!-- ============ CRIAR PIN ============ -->
+<section class="tela" id="tela-criar-pin">
+  <div class="conteudo centro-vertical">
+    <div class="icone-grande">🔒</div>
+    <h2 class="titulo" id="titulo-criar-pin">Crie seu PIN</h2>
+    <p class="texto" id="texto-criar-pin">Quatro números para abrir o app. Fica só neste aparelho.</p>
+
+    <div class="pin-pontos" id="pontos-criar"><i></i><i></i><i></i><i></i></div>
+    <p class="aviso" id="aviso-criar-pin" role="alert"></p>
+
+    <div class="teclado" id="teclado-criar"></div>
+  </div>
+</section>
+
+
+<!-- ============ DESBLOQUEIO POR PIN ============ -->
+<section class="tela" id="tela-pin">
+  <div class="conteudo centro-vertical">
+    <div class="marca-simbolo pequeno" aria-hidden="true">
+      <svg viewBox="0 0 100 100" width="56" height="56">
+        <circle cx="38" cy="50" r="26" fill="none" stroke="var(--dourado)" stroke-width="2.5" opacity=".85"/>
+        <circle cx="62" cy="50" r="26" fill="none" stroke="var(--dourado)" stroke-width="2.5" opacity=".85"/>
+      </svg>
+    </div>
+    <h2 class="titulo">EntreNós</h2>
+    <p class="texto">Digite seu PIN</p>
+
+    <div class="pin-pontos" id="pontos-pin"><i></i><i></i><i></i><i></i></div>
+    <p class="aviso" id="aviso-pin" role="alert"></p>
+
+    <div class="teclado" id="teclado-pin"></div>
+    <button type="button" class="botao-texto" id="botao-esqueci-pin">Esqueci meu PIN</button>
+  </div>
+</section>
+
+
+<!-- ============ TELA PRINCIPAL ============ -->
+<section class="tela" id="tela-principal">
+  <div class="conteudo com-abas">
+
+    <!-- INÍCIO -->
+    <div class="aba-conteudo ativa" id="aba-inicio">
+      <header class="cabecalho-app">
+        <h1 class="marca-nome pequena">EntreNós</h1>
+        <button type="button" class="botao-icone" id="botao-ajustes" aria-label="Ajustes">⚙</button>
+      </header>
+
+      <div class="centro-vertical">
+        <p class="texto fraco" id="saudacao">Olá</p>
+        <button type="button" class="botao-desejo" id="botao-desejo">
+          <span class="botao-desejo-brilho"></span>
+          <span class="botao-desejo-texto">Estou pensando<br>em você</span>
+        </button>
+        <p class="texto fraco pequeno-texto">Toque para enviar um sinal</p>
+      </div>
+    </div>
+
+    <!-- DESCOBRIR -->
+    <div class="aba-conteudo" id="aba-descobrir">
+      <header class="cabecalho-app"><h2 class="titulo-aba">Descobrir</h2></header>
+      <div class="em-breve">
+        <div class="icone-grande">✨</div>
+        <p class="texto">Perguntas para você conhecer melhor o que gosta.</p>
+        <p class="texto fraco">Em breve</p>
+      </div>
+    </div>
+
+    <!-- NÓS DOIS -->
+    <div class="aba-conteudo" id="aba-nosdois">
+      <header class="cabecalho-app"><h2 class="titulo-aba">Nós Dois</h2></header>
+      <div class="em-breve">
+        <div class="icone-grande">💞</div>
+        <p class="texto">Descobertas em comum e o que você quer contar.</p>
+        <p class="texto fraco">Em breve</p>
+      </div>
+    </div>
+
+    <!-- EXPLORAR -->
+    <div class="aba-conteudo" id="aba-explorar">
+      <header class="cabecalho-app"><h2 class="titulo-aba">Explorar</h2></header>
+      <div class="em-breve">
+        <div class="icone-grande">📖</div>
+        <p class="texto">Ideias e dicas para o relacionamento de vocês.</p>
+        <p class="texto fraco">Em breve</p>
+      </div>
+    </div>
+
+    <!-- ABAS -->
+    <nav class="abas" id="abas">
+      <button type="button" class="aba ativa" data-aba="inicio">
+        <span class="aba-icone">🔥</span><span class="aba-texto">Início</span>
+      </button>
+      <button type="button" class="aba" data-aba="descobrir">
+        <span class="aba-icone">✨</span><span class="aba-texto">Descobrir</span>
+      </button>
+      <button type="button" class="aba" data-aba="nosdois">
+        <span class="aba-icone">💞</span><span class="aba-texto">Nós Dois</span>
+      </button>
+      <button type="button" class="aba" data-aba="explorar">
+        <span class="aba-icone">📖</span><span class="aba-texto">Explorar</span>
+      </button>
+    </nav>
+  </div>
+</section>
+
+
+<!-- ============ AJUSTES ============ -->
+<section class="tela" id="tela-ajustes">
+  <div class="conteudo">
+    <header class="cabecalho-app">
+      <button type="button" class="botao-icone" id="botao-fechar-ajustes" aria-label="Voltar">←</button>
+      <h2 class="titulo-aba">Ajustes</h2>
+    </header>
+
+    <div class="lista">
+      <div class="lista-item">
+        <span class="lista-rotulo">Seu apelido</span>
+        <span class="lista-valor" id="ajuste-apelido">—</span>
+      </div>
+      <div class="lista-item">
+        <span class="lista-rotulo">Seu amor</span>
+        <span class="lista-valor" id="ajuste-parceiro">—</span>
+      </div>
+      <div class="lista-item">
+        <span class="lista-rotulo">Plano</span>
+        <span class="lista-valor" id="ajuste-plano">Gratuito</span>
+      </div>
+    </div>
+
+    <button type="button" class="botao-secundario" id="botao-trocar-pin">Trocar meu PIN</button>
+    <button type="button" class="botao-secundario" id="botao-sair">Sair da conta</button>
+    <button type="button" class="botao-perigo" id="botao-desvincular">Desfazer vínculo do casal</button>
+    <p class="texto fraco pequeno-texto">Desfazer o vínculo apaga tudo o que vocês compartilharam. Não dá para voltar atrás.</p>
+  </div>
+</section>
+
+
+<!-- ============ AVISO FLUTUANTE ============ -->
+<div class="recado" id="recado"></div>
+
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
