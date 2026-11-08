@@ -216,6 +216,44 @@ input:focus{ outline:none; border-color:rgba(201,166,107,.6); background:rgba(25
 }
 @keyframes pulsar{ 0%,100%{transform:scale(.85); opacity:.45;} 50%{transform:scale(1.12); opacity:.95;} }
 
+/* ---------- Tour ---------- */
+.tour-palco{ flex:1; display:flex; align-items:center; justify-content:center; }
+.tour-passo{
+  display:none; flex-direction:column; align-items:center;
+  text-align:center; gap:17px; max-width:330px;
+}
+.tour-passo.ativo{ display:flex; animation:surgir .42s ease both; }
+.tour-arte{
+  width:124px; height:124px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:52px; margin-bottom:6px;
+  background:radial-gradient(circle at 34% 28%, var(--vinho-claro), var(--vinho) 64%, #2A0A18);
+  box-shadow:0 0 0 1px rgba(201,166,107,.24), 0 16px 44px rgba(59,16,37,.6);
+}
+.tour-pontos{ display:flex; gap:9px; justify-content:center; margin:26px 0 20px; }
+.tour-pontos i{
+  width:7px; height:7px; border-radius:50%;
+  background:rgba(201,166,107,.3); transition:background .3s, width .3s;
+}
+.tour-pontos i.cheio{ background:var(--dourado); width:22px; border-radius:4px; }
+
+/* ---------- Faixa de convite ---------- */
+.faixa{
+  display:flex; align-items:center; gap:13px; width:100%;
+  padding:14px 18px; margin-bottom:14px;
+  background:linear-gradient(135deg, rgba(78,24,49,.72), rgba(36,16,32,.6));
+  border:1px solid rgba(201,166,107,.3);
+  border-radius:var(--curva-m);
+  color:var(--creme); font-family:inherit; text-align:left; cursor:pointer;
+  transition:transform .15s, border-color .25s;
+}
+.faixa:active{ transform:scale(.985); }
+.faixa-icone{ font-size:22px; flex-shrink:0; }
+.faixa-texto{ flex:1; display:flex; flex-direction:column; gap:2px; }
+.faixa-texto strong{ font-size:14.5px; font-weight:500; color:var(--dourado-forte); }
+.faixa-texto small{ font-size:12px; color:var(--creme-fraco); }
+.faixa-seta{ font-size:21px; color:var(--dourado); flex-shrink:0; }
+
 /* ---------- Código do convite ---------- */
 .codigo-caixa{
   display:flex; flex-direction:column; align-items:center; gap:7px;

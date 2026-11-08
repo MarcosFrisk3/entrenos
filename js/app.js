@@ -15,6 +15,7 @@ let pinNovo = '';
 let pinDigitado = '';
 let etapaPin = 'criar';   // criar | repetir
 let trocandoPin = false;
+let passoTour = 1;
 
 
 // ------------------------------------------------------------
@@ -67,18 +68,15 @@ async function iniciar() {
 async function seguirDepoisDoLogin() {
   statusCasal = await Conta.buscarStatus();
 
-  if (!statusCasal.vinculado) {
-    mostrar('tela-vinculo');
-    if (statusCasal.aguardando) {
-      $('painel-convidar').classList.add('ativo');
-      $('painel-codigo').classList.remove('ativo');
-      $('esperando').classList.remove('escondido');
-      vigiarVinculo();
-    }
-    return;
-  }
+  if (statusCasal.vinculado) pararVigia();
+  else if (statusCasal.aguardando) vigiarVinculo();
 
-  pararVigia();
+  // Primeira vez: mostra o tour antes de qualquer coisa
+  if (!statusCasal.vinculado && !localStorage.getItem('entrenos.tour')) {
+    passoTour = 1;
+    desenharTour();
+    return mostrar('tela-tour');
+  }
 
   if (!Pin.temPin()) {
     etapaPin = 'criar'; pinNovo = ''; pinDigitado = '';
@@ -92,6 +90,29 @@ async function seguirDepoisDoLogin() {
   pedirPin();
 }
 
+
+// ------------------------------------------------------------
+// Tour
+// ------------------------------------------------------------
+function desenharTour() {
+  document.querySelectorAll('.tour-passo').forEach(p =>
+    p.classList.toggle('ativo', Number(p.dataset.passo) === passoTour));
+  $('tour-pontos').querySelectorAll('i').forEach((p, i) =>
+    p.classList.toggle('cheio', i < passoTour));
+  $('botao-tour').textContent = passoTour === 3 ? 'Começar' : 'Continuar';
+  $('botao-pular-tour').classList.toggle('escondido', passoTour === 3);
+}
+
+async function avancarTour() {
+  if (passoTour < 3) { passoTour++; return desenharTour(); }
+  await terminarTour();
+}
+
+async function terminarTour() {
+  localStorage.setItem('entrenos.tour', '1');
+  await seguirDepoisDoLogin();
+}
+
 function pedirPin() {
   pinDigitado = '';
   atualizarPontos('pontos-pin', 0);
@@ -102,11 +123,34 @@ function pedirPin() {
 
 async function abrirApp() {
   const apelido = await Conta.meuApelido();
-  $('saudacao').textContent     = `Olá, ${apelido}`;
+  const juntos  = !!statusCasal?.vinculado;
+
+  $('saudacao').textContent        = `Olá, ${apelido}`;
   $('ajuste-apelido').textContent  = apelido;
-  $('ajuste-parceiro').textContent = statusCasal?.parceiro || '—';
+  $('ajuste-parceiro').textContent = juntos ? (statusCasal.parceiro || 'Amor') : 'Ainda não vinculado';
   $('ajuste-plano').textContent    = statusCasal?.plano === 'premium' ? 'Premium' : 'Gratuito';
+
+  // Modo sozinho: faixa de convite e botões ajustados
+  $('faixa-convite').classList.toggle('escondido', juntos);
+  $('botao-convidar-ajustes').classList.toggle('escondido', juntos);
+  $('botao-desvincular').classList.toggle('escondido', !juntos);
+
+  if (!juntos && statusCasal?.aguardando) {
+    $('faixa-convite').querySelector('small').textContent = 'Esperando seu amor entrar com o código';
+    vigiarVinculo();
+  }
+
   mostrar('tela-principal');
+}
+
+function abrirConvite() {
+  $('botao-voltar-vinculo').classList.remove('escondido');
+  $('botao-sair-vinculo').classList.add('escondido');
+  if (statusCasal?.aguardando) {
+    trocarPainelVinculo(false);
+    $('esperando').classList.remove('escondido');
+  }
+  mostrar('tela-vinculo');
 }
 
 
@@ -232,7 +276,11 @@ async function vincular() {
   try {
     await Conta.usarConvite(codigo);
     recado('Vocês estão juntos 💛');
-    await seguirDepoisDoLogin();
+    pararVigia();
+    statusCasal = await Conta.buscarStatus();
+    $('campo-codigo').value = '';
+    if (Pin.temPin()) await abrirApp();
+    else await seguirDepoisDoLogin();
   } catch (erro) {
     aviso('aviso-vinculo', erro.message);
   } finally {
@@ -251,7 +299,8 @@ function vigiarVinculo() {
         pararVigia();
         statusCasal = s;
         recado('Seu amor entrou 💛');
-        await seguirDepoisDoLogin();
+        if (Pin.temPin()) await abrirApp();
+        else await seguirDepoisDoLogin();
       }
     } catch { /* sem internet: tenta de novo depois */ }
   }, 5000);
@@ -380,6 +429,7 @@ function trocarAba(nome) {
 async function sairDaConta() {
   pararVigia();
   Pin.apagarPin();
+  localStorage.removeItem('entrenos.tour');
   await Conta.sair();
   statusCasal = null;
   trocarModo(false);
@@ -391,9 +441,9 @@ async function desvincular() {
   if (!confirm('Isso apaga tudo o que vocês compartilharam e não dá para voltar atrás. Continuar?')) return;
   try {
     await Conta.desfazerVinculo();
-    Pin.apagarPin();
     recado('Vínculo desfeito');
-    await seguirDepoisDoLogin();
+    statusCasal = await Conta.buscarStatus();
+    await abrirApp();
   } catch (erro) {
     recado(erro.message);
   }
@@ -445,8 +495,19 @@ function ligarEventos() {
 
   $('botao-desejo').addEventListener('click', () => {
     vibrar([18, 40, 18]);
-    recado('Os sinais chegam na próxima etapa 🔥');
+    recado(statusCasal?.vinculado
+      ? 'Os sinais chegam na próxima etapa 🔥'
+      : 'Convide seu amor para enviar de verdade 💌');
   });
+
+  // Tour
+  $('botao-tour').addEventListener('click', avancarTour);
+  $('botao-pular-tour').addEventListener('click', terminarTour);
+
+  // Convite pelo modo sozinho
+  $('faixa-convite').addEventListener('click', abrirConvite);
+  $('botao-convidar-ajustes').addEventListener('click', abrirConvite);
+  $('botao-voltar-vinculo').addEventListener('click', () => mostrar('tela-principal'));
 
   // Ajustes
   $('botao-ajustes').addEventListener('click', () => mostrar('tela-ajustes'));

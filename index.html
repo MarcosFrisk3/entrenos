@@ -94,9 +94,41 @@
 </section>
 
 
+<!-- ============ TOUR (primeira vez) ============ -->
+<section class="tela" id="tela-tour">
+  <div class="conteudo">
+    <div class="tour-palco">
+      <div class="tour-passo ativo" data-passo="1">
+        <div class="tour-arte">🔥</div>
+        <h2 class="titulo">Quando bater a vontade</h2>
+        <p class="texto">Um toque e seu amor recebe um sinal discreto no celular. Só vocês dois sabem o que significa.</p>
+      </div>
+      <div class="tour-passo" data-passo="2">
+        <div class="tour-arte">💞</div>
+        <h2 class="titulo">Diga o que é difícil falar</h2>
+        <p class="texto">Conte um desejo na hora, ou guarde em segredo. O segredo só aparece se os dois quiserem a mesma coisa.</p>
+      </div>
+      <div class="tour-passo" data-passo="3">
+        <div class="tour-arte">🔒</div>
+        <h2 class="titulo">Fica entre vocês</h2>
+        <p class="texto">PIN para abrir, notificações sem prévia e nada de propaganda. Nem nós conseguimos ver suas conversas.</p>
+      </div>
+    </div>
+
+    <div class="tour-pontos" id="tour-pontos"><i class="cheio"></i><i></i><i></i></div>
+    <button type="button" class="botao-principal" id="botao-tour">Continuar</button>
+    <button type="button" class="botao-texto" id="botao-pular-tour">Pular</button>
+  </div>
+</section>
+
+
 <!-- ============ VÍNCULO DO CASAL ============ -->
 <section class="tela" id="tela-vinculo">
   <div class="conteudo">
+    <header class="cabecalho-app">
+      <button type="button" class="botao-icone escondido" id="botao-voltar-vinculo" aria-label="Voltar">←</button>
+      <h2 class="titulo-aba">Convidar seu amor</h2>
+    </header>
     <header class="cabecalho">
       <h2 class="titulo">Falta só o seu amor</h2>
       <p class="subtitulo">O EntreNós é feito para duas pessoas</p>
@@ -189,6 +221,15 @@
         <button type="button" class="botao-icone" id="botao-ajustes" aria-label="Ajustes">⚙</button>
       </header>
 
+      <button type="button" class="faixa escondido" id="faixa-convite">
+        <span class="faixa-icone">💌</span>
+        <span class="faixa-texto">
+          <strong>Convide seu amor</strong>
+          <small>Enquanto isso, você está vendo exemplos</small>
+        </span>
+        <span class="faixa-seta">›</span>
+      </button>
+
       <div class="centro-vertical">
         <p class="texto fraco" id="saudacao">Olá</p>
         <button type="button" class="botao-desejo" id="botao-desejo">
@@ -271,6 +312,7 @@
       </div>
     </div>
 
+    <button type="button" class="botao-principal escondido" id="botao-convidar-ajustes">Convidar meu amor</button>
     <button type="button" class="botao-secundario" id="botao-trocar-pin">Trocar meu PIN</button>
     <button type="button" class="botao-secundario" id="botao-sair">Sair da conta</button>
     <button type="button" class="botao-perigo" id="botao-desvincular">Desfazer vínculo do casal</button>
