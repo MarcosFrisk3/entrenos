@@ -10,7 +10,7 @@
 // os arquivos novos em vez de usar os antigos.
 // ============================================================
 
-const VERSAO = 'entrenos-v3';
+const VERSAO = 'entrenos-v4';
 
 const ARQUIVOS = [
   './',
@@ -19,6 +19,8 @@ const ARQUIVOS = [
   './js/app.js',
   './js/conta.js',
   './js/pin.js',
+  './js/sinais.js',
+  './js/frases.js',
   './js/config.js',
   './manifest.json'
 ];
