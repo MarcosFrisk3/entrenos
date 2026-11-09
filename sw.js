@@ -10,7 +10,7 @@
 // os arquivos novos em vez de usar os antigos.
 // ============================================================
 
-const VERSAO = 'entrenos-v4';
+const VERSAO = 'entrenos-v5';
 
 const ARQUIVOS = [
   './',
@@ -65,19 +65,18 @@ self.addEventListener('fetch', (evento) => {
     return;
   }
 
-  // Resto: usa o guardado e atualiza por trás
+  // Resto: tenta a internet primeiro, para sempre pegar a versão nova.
+  // Se a internet falhar, usa o que está guardado.
   evento.respondWith(
-    caches.match(pedido).then(guardado => {
-      const rede = fetch(pedido).then(resposta => {
+    fetch(pedido)
+      .then(resposta => {
         if (resposta && resposta.status === 200 && resposta.type === 'basic') {
           const copia = resposta.clone();
           caches.open(VERSAO).then(c => c.put(pedido, copia));
         }
         return resposta;
-      }).catch(() => guardado);
-
-      return guardado || rede;
-    })
+      })
+      .catch(() => caches.match(pedido))
   );
 });
 
