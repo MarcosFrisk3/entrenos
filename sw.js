@@ -10,7 +10,7 @@
 // os arquivos novos em vez de usar os antigos.
 // ============================================================
 
-const VERSAO = 'entrenos-v5';
+const VERSAO = 'entrenos-v6';
 
 const ARQUIVOS = [
   './',

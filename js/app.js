@@ -2,7 +2,7 @@
 // EntreNós — Aplicativo
 // ============================================================
 
-import { TAMANHO_PIN } from './config.js';
+import { TAMANHO_PIN, PEDIR_PIN } from './config.js';
 import * as Conta from './conta.js';
 import * as Pin from './pin.js';
 import * as Sinais from './sinais.js';
@@ -85,6 +85,8 @@ async function seguirDepoisDoLogin() {
     desenharTour();
     return mostrar('tela-tour');
   }
+
+  if (!PEDIR_PIN) return abrirApp();
 
   if (!Pin.temPin()) {
     etapaPin = 'criar'; pinNovo = ''; pinDigitado = '';
@@ -852,6 +854,7 @@ function ligarEventos() {
 
   // Tranca o app ao sair dele
   document.addEventListener('visibilitychange', () => {
+    if (!PEDIR_PIN) return;
     if (document.hidden && $('tela-principal').classList.contains('ativa')) {
       if (Pin.temPin()) pedirPin();
     }
