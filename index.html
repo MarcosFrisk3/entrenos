@@ -217,7 +217,10 @@
     <!-- INÍCIO -->
     <div class="aba-conteudo ativa" id="aba-inicio">
       <header class="cabecalho-app">
-        <h1 class="marca-nome pequena">EntreNós</h1>
+        <div class="titulo-casal">
+          <h1 class="marca-nome pequena">EntreNós</h1>
+          <span class="com-quem escondido" id="com-quem"></span>
+        </div>
         <button type="button" class="botao-icone" id="botao-ajustes" aria-label="Ajustes">⚙</button>
       </header>
 
@@ -230,6 +233,15 @@
         <span class="faixa-seta">›</span>
       </button>
 
+      <button type="button" class="faixa aviso-sinal escondido" id="faixa-sinal">
+        <span class="faixa-icone">💌</span>
+        <span class="faixa-texto">
+          <strong>Tem algo pra você</strong>
+          <small id="faixa-sinal-quem">Toque para descobrir</small>
+        </span>
+        <span class="faixa-seta">›</span>
+      </button>
+
       <div class="centro-vertical">
         <p class="texto fraco" id="saudacao">Olá</p>
         <button type="button" class="botao-desejo" id="botao-desejo">
@@ -238,6 +250,8 @@
         </button>
         <p class="texto fraco pequeno-texto">Toque para enviar um sinal</p>
       </div>
+
+      <div class="historico" id="historico"></div>
     </div>
 
     <!-- DESCOBRIR -->
@@ -285,6 +299,87 @@
         <span class="aba-icone">📖</span><span class="aba-texto">Explorar</span>
       </button>
     </nav>
+  </div>
+</section>
+
+
+<!-- ============ ENVIAR UM SINAL ============ -->
+<section class="tela" id="tela-enviar">
+  <div class="conteudo">
+    <header class="cabecalho-app">
+      <button type="button" class="botao-icone" id="botao-voltar-enviar" aria-label="Voltar">←</button>
+      <h2 class="titulo-aba" id="titulo-enviar">Como você está?</h2>
+    </header>
+
+    <!-- Passo 1: tom -->
+    <div class="passo ativo" id="passo-tom">
+      <p class="texto fraco">Escolha o clima</p>
+      <div class="opcoes" id="opcoes-tom"></div>
+    </div>
+
+    <!-- Passo 2: desejo -->
+    <div class="passo" id="passo-desejo">
+      <p class="texto fraco">O que você quer dizer?</p>
+      <div class="opcoes" id="opcoes-desejo"></div>
+    </div>
+
+    <!-- Passo 3: frase -->
+    <div class="passo" id="passo-frase">
+      <p class="texto fraco">Escolha uma frase ou escreva a sua</p>
+      <div class="frases" id="lista-frases"></div>
+      <button type="button" class="botao-texto" id="botao-outras">Ver outras frases</button>
+
+      <div class="campo">
+        <label for="campo-frase">Sua mensagem</label>
+        <textarea id="campo-frase" rows="3" maxlength="500" placeholder="Escreva do seu jeito…"></textarea>
+      </div>
+
+      <p class="aviso" id="aviso-enviar" role="alert"></p>
+      <button type="button" class="botao-principal" id="botao-enviar-sinal">Enviar 🔥</button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============ RECEBER / REVELAR ============ -->
+<section class="tela" id="tela-receber">
+  <div class="conteudo">
+    <header class="cabecalho-app">
+      <button type="button" class="botao-icone" id="botao-voltar-receber" aria-label="Voltar">←</button>
+      <h2 class="titulo-aba" id="titulo-receber">Para você</h2>
+    </header>
+
+    <!-- Antes de revelar -->
+    <div class="passo ativo" id="passo-segredo">
+      <div class="centro-vertical">
+        <button type="button" class="envelope" id="botao-revelar">
+          <span class="envelope-brilho"></span>
+          <span class="envelope-icone">💌</span>
+          <span class="envelope-texto">Quero descobrir</span>
+        </button>
+        <p class="texto fraco pequeno-texto" id="receber-de">Chegou algo pra você</p>
+      </div>
+    </div>
+
+    <!-- Depois de revelar -->
+    <div class="passo" id="passo-revelado">
+      <div class="cartao-sinal" id="cartao-sinal">
+        <span class="selo-tom" id="selo-tom"></span>
+        <p class="frase-grande" id="frase-recebida"></p>
+        <span class="assinatura" id="assinatura-sinal"></span>
+      </div>
+
+      <p class="texto fraco pequeno-texto">Responda com um toque</p>
+      <div class="respostas-rapidas" id="respostas-rapidas"></div>
+
+      <div class="campo">
+        <label for="campo-resposta">Ou escreva</label>
+        <textarea id="campo-resposta" rows="2" maxlength="300" placeholder="Sua resposta…"></textarea>
+      </div>
+
+      <p class="aviso" id="aviso-resposta" role="alert"></p>
+      <button type="button" class="botao-principal" id="botao-responder">Responder</button>
+    </div>
   </div>
 </section>
 

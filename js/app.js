@@ -5,6 +5,8 @@
 import { TAMANHO_PIN } from './config.js';
 import * as Conta from './conta.js';
 import * as Pin from './pin.js';
+import * as Sinais from './sinais.js';
+import { TONS, DESEJOS, RESPOSTAS, sugerir, nomeDoTom, nomeDoDesejo } from './frases.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -16,6 +18,12 @@ let pinDigitado = '';
 let etapaPin = 'criar';   // criar | repetir
 let trocandoPin = false;
 let passoTour = 1;
+
+// Sinais
+let rascunho = { tom: null, desejo: null, texto: '' };
+let sinalAberto = null;
+let ouvindo = false;
+let meuId = null;
 
 
 // ------------------------------------------------------------
@@ -122,6 +130,9 @@ function pedirPin() {
 }
 
 async function abrirApp() {
+  const sessao  = await Conta.sessaoAtual();
+  meuId = sessao?.user?.id || null;
+
   const apelido = await Conta.meuApelido();
   const juntos  = !!statusCasal?.vinculado;
 
@@ -140,7 +151,306 @@ async function abrirApp() {
     vigiarVinculo();
   }
 
+  // Nome do parceiro no topo
+  const comQuem = $('com-quem');
+  comQuem.textContent = juntos ? (statusCasal.parceiro || 'Amor') : '';
+  comQuem.classList.toggle('escondido', !juntos);
+
   mostrar('tela-principal');
+
+  if (juntos) {
+    carregarSinais();
+    if (!ouvindo) {
+      ouvindo = true;
+      Sinais.ouvir({
+        aoChegarSinal: () => { recado('Chegou um sinal 💌'); vibrar([30, 60, 30]); carregarSinais(); },
+        aoChegarResposta: () => { recado('Seu amor respondeu 💛'); carregarSinais(); }
+      });
+    }
+  }
+}
+
+
+// ------------------------------------------------------------
+// Sinais: lista e avisos
+// ------------------------------------------------------------
+async function carregarSinais() {
+  try {
+    const novo = await Sinais.sinalNaoVisto();
+    const faixa = $('faixa-sinal');
+    faixa.classList.toggle('escondido', !novo);
+    if (novo) {
+      $('faixa-sinal-quem').textContent = `${statusCasal?.parceiro || 'Seu amor'} mandou algo`;
+      faixa.onclick = () => abrirSinal(novo);
+    }
+
+    const lista = await Sinais.listarSinais(8);
+    desenharHistorico(lista);
+  } catch { /* sem internet: tenta na próxima */ }
+}
+
+function desenharHistorico(lista) {
+  const caixa = $('historico');
+  caixa.innerHTML = '';
+  if (!lista.length) return;
+
+  const titulo = document.createElement('p');
+  titulo.className = 'historico-titulo';
+  titulo.textContent = 'Últimos sinais';
+  caixa.appendChild(titulo);
+
+  lista.forEach(s => {
+    const meu = s.remetente === meuId;
+    const tom = nomeDoTom(s.tom);
+    const naoVisto = !meu && !s.visto_em;
+
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'item-historico' + (naoVisto ? ' novo' : '');
+    item.innerHTML = `
+      <span class="item-emoji">${tom.emoji}</span>
+      <span class="item-texto">
+        <span class="item-frase">${naoVisto ? 'Toque para descobrir' : escapar(s.texto)}</span>
+        <span class="item-quando">${meu ? 'Você enviou' : 'Recebido'} · ${quando(s.criado_em)}${
+          (s.respostas && s.respostas.length) ? ' · respondido' : ''}</span>
+      </span>`;
+    item.addEventListener('click', () => abrirSinal(s));
+    caixa.appendChild(item);
+  });
+}
+
+function escapar(t = '') {
+  return t.replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+}
+
+function quando(iso) {
+  const min = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (min < 1)   return 'agora';
+  if (min < 60)  return `há ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24)    return `há ${h}h`;
+  const d = Math.floor(h / 24);
+  return d === 1 ? 'ontem' : `há ${d} dias`;
+}
+
+
+// ------------------------------------------------------------
+// Enviar um sinal
+// ------------------------------------------------------------
+function abrirEnvio() {
+  if (!statusCasal?.vinculado) {
+    return recado('Convide seu amor para enviar de verdade 💌');
+  }
+  rascunho = { tom: null, desejo: null, texto: '' };
+  $('campo-frase').value = '';
+  aviso('aviso-enviar', '');
+  desenharTons();
+  irParaPasso('passo-tom', 'Como você está?');
+  mostrar('tela-enviar');
+}
+
+function irParaPasso(id, titulo) {
+  ['passo-tom','passo-desejo','passo-frase'].forEach(p =>
+    $(p).classList.toggle('ativo', p === id));
+  $('titulo-enviar').textContent = titulo;
+}
+
+function desenharTons() {
+  const caixa = $('opcoes-tom');
+  caixa.innerHTML = '';
+  TONS.forEach(t => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'opcao';
+    b.innerHTML = `<span class="opcao-emoji">${t.emoji}</span><span>${t.nome}</span><span class="opcao-seta">›</span>`;
+    b.addEventListener('click', () => {
+      rascunho.tom = t.id;
+      desenharDesejos(t.id);
+      irParaPasso('passo-desejo', t.nome);
+    });
+    caixa.appendChild(b);
+  });
+}
+
+function desenharDesejos(tom) {
+  const caixa = $('opcoes-desejo');
+  caixa.innerHTML = '';
+  (DESEJOS[tom] || []).forEach(d => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'opcao';
+    b.innerHTML = `<span class="opcao-emoji">${d.emoji}</span><span>${d.nome}</span><span class="opcao-seta">›</span>`;
+    b.addEventListener('click', () => {
+      rascunho.desejo = d.id;
+      desenharFrases();
+      irParaPasso('passo-frase', d.nome);
+    });
+    caixa.appendChild(b);
+  });
+}
+
+function desenharFrases() {
+  const caixa = $('lista-frases');
+  caixa.innerHTML = '';
+  rascunho.texto = '';
+  $('campo-frase').value = '';
+
+  const livre = rascunho.desejo === 'livre';
+  $('botao-outras').classList.toggle('escondido', livre);
+  if (livre) { $('campo-frase').focus(); return; }
+
+  sugerir(rascunho.tom, rascunho.desejo, 3).forEach(frase => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'frase';
+    b.textContent = frase;
+    b.addEventListener('click', () => {
+      caixa.querySelectorAll('.frase').forEach(f => f.classList.remove('marcada'));
+      b.classList.add('marcada');
+      rascunho.texto = frase;
+      $('campo-frase').value = frase;
+      aviso('aviso-enviar', '');
+    });
+    caixa.appendChild(b);
+  });
+}
+
+async function enviarSinal() {
+  const texto = $('campo-frase').value.trim();
+  if (!texto) return aviso('aviso-enviar', 'Escolha uma frase ou escreva a sua.');
+
+  const botao = $('botao-enviar-sinal');
+  botao.disabled = true;
+  botao.textContent = 'Enviando…';
+
+  try {
+    await Sinais.enviarSinal({
+      casalId: statusCasal.casal_id,
+      tom: rascunho.tom,
+      desejo: rascunho.desejo,
+      texto
+    });
+    vibrar([20, 50, 20]);
+    recado('Enviado 🔥');
+    mostrar('tela-principal');
+    carregarSinais();
+  } catch (erro) {
+    aviso('aviso-enviar', erro.message);
+  } finally {
+    botao.disabled = false;
+    botao.textContent = 'Enviar 🔥';
+  }
+}
+
+
+// ------------------------------------------------------------
+// Receber e revelar
+// ------------------------------------------------------------
+function abrirSinal(sinal) {
+  sinalAberto = sinal;
+  const meu = sinal.remetente === meuId;
+  const jaVisto = meu || !!sinal.visto_em;
+
+  $('campo-resposta').value = '';
+  aviso('aviso-resposta', '');
+  $('titulo-receber').textContent = meu ? 'Você enviou' : 'Para você';
+  $('receber-de').textContent = `${statusCasal?.parceiro || 'Seu amor'} mandou algo`;
+
+  if (jaVisto) revelar(sinal);
+  else {
+    $('passo-segredo').classList.add('ativo');
+    $('passo-revelado').classList.remove('ativo');
+  }
+  mostrar('tela-receber');
+}
+
+async function revelar(sinal = sinalAberto) {
+  if (!sinal) return;
+  const tom = nomeDoTom(sinal.tom);
+  const desejo = nomeDoDesejo(sinal.tom, sinal.desejo);
+  const meu = sinal.remetente === meuId;
+
+  $('selo-tom').textContent = `${tom.emoji} ${desejo ? desejo.nome : tom.nome}`;
+  $('frase-recebida').textContent = sinal.texto;
+  $('assinatura-sinal').textContent = meu
+    ? `Para ${statusCasal?.parceiro || 'seu amor'} · ${quando(sinal.criado_em)}`
+    : `De ${statusCasal?.parceiro || 'seu amor'} · ${quando(sinal.criado_em)}`;
+
+  desenharRespostas(meu, sinal);
+
+  $('passo-segredo').classList.remove('ativo');
+  $('passo-revelado').classList.add('ativo');
+
+  if (!meu && !sinal.visto_em) {
+    vibrar(25);
+    try { await Sinais.marcarVisto(sinal.id); sinal.visto_em = new Date().toISOString(); } catch {}
+    carregarSinais();
+  }
+}
+
+function desenharRespostas(meu, sinal) {
+  const caixa = $('respostas-rapidas');
+  const campo = $('campo-resposta');
+  const botao = $('botao-responder');
+
+  // Quem enviou vê as respostas que já chegaram, e não responde a si mesmo
+  const jaRespondido = sinal.respostas && sinal.respostas.length;
+  const soLeitura = meu;
+
+  caixa.innerHTML = '';
+  caixa.classList.toggle('escondido', soLeitura);
+  campo.closest('.campo').classList.toggle('escondido', soLeitura);
+  botao.classList.toggle('escondido', soLeitura);
+  caixa.previousElementSibling.classList.toggle('escondido', soLeitura);
+
+  if (soLeitura) {
+    if (jaRespondido) {
+      const r = sinal.respostas[sinal.respostas.length - 1];
+      const p = document.createElement('p');
+      p.className = 'texto';
+      p.innerHTML = `<strong>Resposta:</strong> ${escapar(r.texto)}`;
+      caixa.classList.remove('escondido');
+      caixa.appendChild(p);
+    }
+    return;
+  }
+
+  RESPOSTAS.forEach(r => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'resposta-chip';
+    b.textContent = `${r.emoji} ${r.texto}`;
+    b.addEventListener('click', () => {
+      caixa.querySelectorAll('.resposta-chip').forEach(c => c.classList.remove('marcada'));
+      b.classList.add('marcada');
+      campo.value = r.texto;
+      aviso('aviso-resposta', '');
+    });
+    caixa.appendChild(b);
+  });
+}
+
+async function responder() {
+  const texto = $('campo-resposta').value.trim();
+  if (!texto) return aviso('aviso-resposta', 'Escolha uma resposta ou escreva a sua.');
+  if (!sinalAberto) return;
+
+  const botao = $('botao-responder');
+  botao.disabled = true;
+  botao.textContent = 'Enviando…';
+
+  try {
+    await Sinais.responder(sinalAberto.id, texto);
+    vibrar([20, 50, 20]);
+    recado('Resposta enviada 💛');
+    mostrar('tela-principal');
+    carregarSinais();
+  } catch (erro) {
+    aviso('aviso-resposta', erro.message);
+  } finally {
+    botao.disabled = false;
+    botao.textContent = 'Responder';
+  }
 }
 
 function abrirConvite() {
@@ -428,6 +738,8 @@ function trocarAba(nome) {
 // ------------------------------------------------------------
 async function sairDaConta() {
   pararVigia();
+  Sinais.pararDeOuvir();
+  ouvindo = false;
   Pin.apagarPin();
   localStorage.removeItem('entrenos.tour');
   await Conta.sair();
@@ -493,12 +805,29 @@ function ligarEventos() {
   document.querySelectorAll('.aba').forEach(b =>
     b.addEventListener('click', () => trocarAba(b.dataset.aba)));
 
-  $('botao-desejo').addEventListener('click', () => {
-    vibrar([18, 40, 18]);
-    recado(statusCasal?.vinculado
-      ? 'Os sinais chegam na próxima etapa 🔥'
-      : 'Convide seu amor para enviar de verdade 💌');
+  $('botao-desejo').addEventListener('click', () => { vibrar([18, 40, 18]); abrirEnvio(); });
+
+  // Enviar
+  $('botao-voltar-enviar').addEventListener('click', () => {
+    if ($('passo-frase').classList.contains('ativo')) {
+      irParaPasso('passo-desejo', nomeDoTom(rascunho.tom).nome);
+    } else if ($('passo-desejo').classList.contains('ativo')) {
+      irParaPasso('passo-tom', 'Como você está?');
+    } else {
+      mostrar('tela-principal');
+    }
   });
+  $('botao-outras').addEventListener('click', desenharFrases);
+  $('botao-enviar-sinal').addEventListener('click', enviarSinal);
+  $('campo-frase').addEventListener('input', () => {
+    $('lista-frases').querySelectorAll('.frase').forEach(f => f.classList.remove('marcada'));
+    aviso('aviso-enviar', '');
+  });
+
+  // Receber
+  $('botao-voltar-receber').addEventListener('click', () => mostrar('tela-principal'));
+  $('botao-revelar').addEventListener('click', () => revelar());
+  $('botao-responder').addEventListener('click', responder);
 
   // Tour
   $('botao-tour').addEventListener('click', avancarTour);

@@ -343,6 +343,153 @@ input:focus{ outline:none; border-color:rgba(201,166,107,.6); background:rgba(25
   gap:13px; text-align:center; opacity:.8;
 }
 
+/* ---------- Nome do parceiro no topo ---------- */
+.titulo-casal{ display:flex; flex-direction:column; gap:1px; }
+.com-quem{ font-size:11.5px; color:var(--creme-fraco); letter-spacing:.03em; }
+.com-quem::before{ content:"com "; opacity:.65; }
+
+/* ---------- Passos ---------- */
+.passo{ display:none; flex-direction:column; gap:15px; flex:1; }
+.passo.ativo{ display:flex; animation:surgir .32s ease both; }
+
+/* ---------- Opções (tom e desejo) ---------- */
+.opcoes{ display:flex; flex-direction:column; gap:11px; }
+.opcao{
+  display:flex; align-items:center; gap:14px; width:100%;
+  padding:17px 20px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(201,166,107,.17);
+  border-radius:var(--curva-g);
+  color:var(--creme); font-family:inherit; font-size:15.5px;
+  text-align:left; cursor:pointer;
+  transition:transform .14s, border-color .22s, background .22s;
+}
+.opcao:active{ transform:scale(.982); }
+.opcao.marcada{ border-color:rgba(201,166,107,.6); background:rgba(201,166,107,.1); }
+.opcao-emoji{ font-size:23px; line-height:1; flex-shrink:0; }
+.opcao-seta{ margin-left:auto; color:var(--dourado); font-size:19px; opacity:.6; }
+
+/* ---------- Frases ---------- */
+.frases{ display:flex; flex-direction:column; gap:10px; }
+.frase{
+  width:100%; padding:17px 20px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(201,166,107,.15);
+  border-radius:var(--curva-m);
+  color:var(--creme); font-family:inherit; font-size:15px; line-height:1.45;
+  text-align:left; cursor:pointer;
+  transition:border-color .22s, background .22s, transform .14s;
+}
+.frase:active{ transform:scale(.985); }
+.frase.marcada{
+  border-color:rgba(201,166,107,.62);
+  background:rgba(201,166,107,.11);
+  color:var(--creme);
+}
+
+textarea{
+  width:100%; padding:16px 20px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(201,166,107,.18);
+  border-radius:var(--curva-m);
+  color:var(--creme); font-size:16px; font-family:inherit; line-height:1.5;
+  resize:none;
+  transition:border-color .25s, background .25s;
+}
+textarea::placeholder{ color:rgba(245,233,223,.3); }
+textarea:focus{ outline:none; border-color:rgba(201,166,107,.6); background:rgba(255,255,255,.075); }
+
+/* ---------- Envelope (revelação) ---------- */
+.envelope{
+  position:relative; width:206px; height:206px; border:0; border-radius:50%;
+  background:radial-gradient(circle at 34% 28%, var(--vinho-claro), var(--vinho) 62%, #2A0A18);
+  color:var(--dourado-forte); font-family:inherit;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  cursor:pointer; overflow:hidden; margin:20px 0;
+  box-shadow:0 0 0 1px rgba(201,166,107,.3), 0 18px 54px rgba(59,16,37,.65);
+  transition:transform .2s;
+}
+.envelope:active{ transform:scale(.955); }
+.envelope-icone{ font-size:48px; line-height:1; position:relative; z-index:2; }
+.envelope-texto{ font-size:15.5px; font-weight:300; letter-spacing:.03em; position:relative; z-index:2; }
+.envelope-brilho{
+  position:absolute; inset:-30%; z-index:1;
+  background:radial-gradient(circle,rgba(201,166,107,.26),transparent 62%);
+  animation:pulsar 2.6s ease-in-out infinite;
+}
+
+/* ---------- Cartão do sinal ---------- */
+.cartao-sinal{
+  padding:34px 28px; margin-bottom:8px;
+  background:linear-gradient(160deg, rgba(78,24,49,.6), rgba(36,16,32,.52));
+  border:1px solid rgba(201,166,107,.3);
+  border-radius:var(--curva-g);
+  box-shadow:0 20px 56px rgba(0,0,0,.4), inset 0 1px 0 rgba(201,166,107,.14);
+  display:flex; flex-direction:column; align-items:center; gap:17px;
+  text-align:center; position:relative; overflow:hidden;
+  animation:revelar .7s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes revelar{
+  from{ opacity:0; transform:scale(.93) translateY(16px); filter:blur(7px); }
+  to{ opacity:1; transform:none; filter:none; }
+}
+.selo-tom{
+  font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--dourado); padding:7px 17px;
+  border:1px solid rgba(201,166,107,.36); border-radius:var(--curva-g);
+}
+.frase-grande{
+  font-size:20px; line-height:1.55; font-weight:300; color:var(--creme);
+  letter-spacing:.01em;
+}
+.assinatura{ font-size:13px; color:var(--creme-fraco); font-style:italic; }
+
+/* ---------- Respostas rápidas ---------- */
+.respostas-rapidas{ display:flex; flex-wrap:wrap; gap:9px; justify-content:center; }
+.resposta-chip{
+  padding:11px 17px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(201,166,107,.2);
+  border-radius:var(--curva-g);
+  color:var(--creme); font-family:inherit; font-size:14px;
+  cursor:pointer; transition:background .2s, border-color .2s, transform .14s;
+}
+.resposta-chip:active{ transform:scale(.95); }
+.resposta-chip.marcada{ border-color:rgba(201,166,107,.62); background:rgba(201,166,107,.12); }
+
+/* ---------- Histórico ---------- */
+.historico{ display:flex; flex-direction:column; gap:9px; margin-top:20px; }
+.historico-titulo{
+  font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--creme-fraco); padding-left:6px; margin-bottom:2px;
+}
+.item-historico{
+  display:flex; align-items:center; gap:12px; width:100%;
+  padding:13px 17px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(201,166,107,.1);
+  border-radius:var(--curva-m);
+  color:var(--creme); font-family:inherit; text-align:left; cursor:pointer;
+  transition:background .2s;
+}
+.item-historico.novo{ border-color:rgba(201,166,107,.42); background:rgba(201,166,107,.07); }
+.item-emoji{ font-size:19px; flex-shrink:0; }
+.item-texto{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.item-frase{
+  font-size:13.5px; color:var(--creme);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.item-quando{ font-size:11.5px; color:var(--creme-fraco); }
+
+.aviso-sinal{
+  border-color:rgba(201,166,107,.5);
+  animation:chamando 2.4s ease-in-out infinite;
+}
+@keyframes chamando{
+  0%,100%{ box-shadow:0 0 0 0 rgba(201,166,107,0); }
+  50%{ box-shadow:0 0 0 5px rgba(201,166,107,.1); }
+}
+
 /* ---------- Lista de ajustes ---------- */
 .lista{
   background:rgba(255,255,255,.045);
